@@ -1117,3 +1117,32 @@ Notion/venv/lib/python3.9/site-packages/urllib3-2.5.0.dist-info/METADATA
 Notion/venv/lib/python3.9/site-packages/urllib3-2.5.0.dist-info/RECORD
 Notion/venv/lib/python3.9/site-packages/urllib3-2.5.0.dist-info/WHEEL
 Notion/venv/lib/python3.9/site-packages/urllib3-2.5.0.dist-info/licenses/LICENSE.txt
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+
+# Virtualenvs
+venv/
+.venv/
+Notion/venv/
+Notion/.venv/
+env/
+ENV/
+
+# editor / OS files
+.vscode/
+.idea/
+.DS_Store
+
+# dotenv / secrets (DO NOT commit plain .env or key)
+.env
+.env.key
+
+# optionally if you want to keep encrypted env only in repo, do NOT ignore .env.enc
+# .env.enc
+
+# other
+*.log

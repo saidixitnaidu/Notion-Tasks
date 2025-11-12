@@ -1,0 +1,54 @@
+name: Notion Sync (decrypt & run)
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # every 5 minutes
+  workflow_dispatch: {}
+
+jobs:
+  decrypt_and_run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cryptography python-dotenv requests python-dateutil pymongo
+
+      - name: Decrypt .env.enc and run notion_sync.py
+        env:
+          ENV_PASSWORD: ${{ secrets.ENV_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import os, sys
+          # import your helper that contains decrypt_env()
+          import encrypt_env
+
+          # Adjust module paths to point to repo locations
+          # encrypt_env.py defines module-level paths; override them here
+          encrypt_env.ENC_PATH = os.path.join(os.getcwd(), "Notion", ".env.enc")
+          # decrypt_env will create a temp file and run SCRIPT_TO_RUN; set SCRIPT_TO_RUN to repo path
+          encrypt_env.SCRIPT_TO_RUN = os.path.join(os.getcwd(), "Notion", "notion_sync.py")
+          # Optional: set ENV_PATH if you plan to re-encrypt locally (not needed in actions)
+          # encrypt_env.ENV_PATH = os.path.join(os.getcwd(), "Notion", ".env")
+
+          # get the password from environment variable (provided by secrets)
+          pwd = os.environ.get("ENV_PASSWORD")
+          if not pwd:
+              print("ENV_PASSWORD not set", file=sys.stderr)
+              sys.exit(2)
+
+          # call the decrypt helper (this will load env variables and run notion_sync.py)
+          try:
+              encrypt_env.decrypt_env(pwd)
+          except Exception as e:
+              print("Decrypt+run failed:", e, file=sys.stderr)
+              raise
+          PY
